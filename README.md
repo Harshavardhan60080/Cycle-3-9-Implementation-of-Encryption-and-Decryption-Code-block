@@ -1,87 +1,200 @@
-# 8 Implementation of error detection using CRC CCITT [16 bit] technique
+# Code-block-experiment-4
+# 🔐 Code Block Experiment 4 – Encryption and Decryption (C Program)
 
-# CRC-16 Bit Error Detection 
+## 📘 **Aim**
+To implement a simple **encryption and decryption** mechanism using the **C programming language**.
 
-## 🧠 AIM
-To write a program for error detection using the Cyclic Redundancy Check (CRC-16 bit) technique.
+---
 
-## 🛠️ EQUIPMENTS REQUIRED
-1. Personal Computer  
-2. C++ Compiler
+## 💻 **Requirements**
+- PC with **Linux Operating System**  
+- **Code::Blocks IDE** or any C compiler  
 
-## 📋 ALGORITHM
-1. Open Code::Blocks application and create a new file.  
-2. Type the code provided below.  
-3. Save the file with a `.c` extension in the desired location.  
-4. Run the program using **Build and Run**.  
-5. Provide polynomial values to generate the output polynomial using the CRC error detection technique.  
-6. The output polynomial is obtained through this technique.
+---
 
-## 💻 PROGRAM
+## ⚙️ **Algorithm**
+1. Open Code::Blocks and create a new C file.  
+2. Write the encryption and decryption program.  
+3. Save the file with the extension `.c`.  
+4. Compile and run the program.  
+5. Enter two prime numbers as input.  
+   - If the number is not prime, display **"WRONG INPUT"**.  
+6. Enter the message to be encrypted.  
+7. Display the **encrypted message**.  
+8. Display the **decrypted message** as final output.  
+9. Verify that the decrypted message matches the original input.  
 
-```c
-#include<stdio.h>
-#include<string.h>
-#define Nstrlen(g)
+---
 
-char t[128], cs[128], g[] = "111";
-int a, e, c;
+## 🧠 **Concept**
+This program demonstrates **RSA-like encryption and decryption** using modular arithmetic and prime numbers.  
+It converts characters to numbers, applies encryption using a public key, and decrypts using a private key.
 
-void xor() {
-    for(c = 1; c < N; c++)
-        cs[c] = ((cs[c] == g[c]) ? '0' : '1');
-}
+---
 
-void crc() {
-    for(e = 0; e < N; e++)
-        cs[e] = t[e];
-    do {
-        if(cs[0] == '1')
-            xor();
-        for(c = 0; c < N - 1; c++)
-            cs[c] = cs[c + 1];
-        cs[c] = t[e++];
-    } while(e <= a + N - 1);
-}
+## 🧩 **Program**
 
-void main() {
-    printf("\nEnter poly: ");
-    scanf("%s", t);
-    printf("\nGen poly is: %s", g);
-    a = strlen(t);
-    for(e = a; e < a + N - 1; e++)
-        t[e] = '0';
-    printf("\nModified t[u]: %s", t);
-    crc();
-    printf("\nChecksum is: %s", cs);
-    for(e = a; e < a + N - 1; e++)
-        t[e] = cs[e - a];
-    printf("\nFinal code word is: %s", t);
-    printf("\nTest error detection 0(yes) 1(no)?: ");
-    scanf("%d", &e);
-    if(e == 0) {
-        printf("Enter position where error is to be inserted: ");
-        scanf("%d", &e);
-        t[e] = (t[e] == '0') ? '1' : '0';
-        printf("Erroneous data: %s\n", t);
+```
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+long int p, q, n, t, flag, e[100], d[100], temp[100], j, m[100], en[100], i;
+char msg[100];
+
+int prime(long int);
+void ce();
+long int cd(long int);
+void encrypt();
+void decrypt();
+
+void main()
+{
+    printf("\nENTER FIRST PRIME NUMBER: ");
+    scanf("%ld", &p);
+    flag = prime(p);
+    if (flag == 0)
+    {
+        printf("\nWRONG INPUT\n");
+        exit(1);
     }
-    crc();
-    for(e = 0; (e < N - 1) && (cs[e] != '1'); e++);
-    if(e < N - 1)
-        printf("Error detected");
-    else
-        printf("No error detected");
 
+    printf("\nENTER ANOTHER PRIME NUMBER: ");
+    scanf("%ld", &q);
+    flag = prime(q);
 
+    if (flag == 0 || p == q)
+    {
+        printf("\nWRONG INPUT\n");
+        exit(1);
+    }
 
+    printf("\nENTER MESSAGE: ");
+    fflush(stdin);
+    scanf("%s", msg);
+
+    for (i = 0; msg[i] != '\0'; i++)
+        m[i] = msg[i];
+
+    n = p * q;
+    t = (p - 1) * (q - 1);
+    ce();
+
+    printf("\nPOSSIBLE VALUES OF e AND d ARE:\n");
+    for (i = 0; i < j - 1; i++)
+        printf("\n%ld\t%ld", e[i], d[i]);
+
+    encrypt();
+    decrypt();
+}
+
+int prime(long int pr)
+{
+    int i;
+    j = sqrt(pr);
+    for (i = 2; i <= j; i++)
+    {
+        if (pr % i == 0)
+            return 0;
+    }
+    return 1;
+}
+
+void ce()
+{
+    int k = 0;
+    for (i = 2; i < t; i++)
+    {
+        if (t % i == 0)
+            continue;
+
+        flag = prime(i);
+        if (flag == 1 && i != p && i != q)
+        {
+            e[k] = i;
+            flag = cd(e[k]);
+            if (flag > 0)
+            {
+                d[k] = flag;
+                k++;
+            }
+            if (k == 99)
+                break;
+        }
+    }
+    j = k;
+}
+
+long int cd(long int x)
+{
+    long int k = 1;
+    while (1)
+    {
+        k = k + t;
+        if (k % x == 0)
+            return (k / x);
+    }
+}
+
+void encrypt()
+{
+    long int pt, ct, key = e[0], k, len;
+    i = 0;
+    len = strlen(msg);
+
+    while (i != len)
+    {
+        pt = m[i];
+        pt = pt - 96;
+        k = 1;
+        for (j = 0; j < key; j++)
+        {
+            k = k * pt;
+            k = k % n;
+        }
+        temp[i] = k;
+        ct = k + 96;
+        en[i] = ct;
+        i++;
+    }
+    en[i] = -1;
+
+    printf("\nTHE ENCRYPTED MESSAGE IS: ");
+    for (i = 0; en[i] != -1; i++)
+        printf("%c", en[i]);
+}
+
+void decrypt()
+{
+    long int pt, ct, key = d[0], k;
+    i = 0;
+
+    while (en[i] != -1)
+    {
+        ct = temp[i];
+        k = 1;
+        for (j = 0; j < key; j++)
+        {
+            k = k * ct;
+            k = k % n;
+        }
+        pt = k + 96;
+        m[i] = pt;
+        i++;
+    }
+    m[i] = -1;
+
+    printf("\nTHE DECRYPTED MESSAGE IS: ");
+    for (i = 0; m[i] != -1; i++)
+        printf("%c", m[i]);
 }
 ```
-## 💻 OUTPUT
 
-<img width="1920" height="1080" alt="212222060192_CRC" src="https://github.com/user-attachments/assets/eed36d7d-abc3-4788-853d-a177325d7c5a" />
+## SAMPLE OUTPUT:
 
-# RESULT:
-Thus the error detection using CRC-CCITT[16 bit] technique is implemented and the output is obtained and verified successfully.
+<img width="1920" height="1080" alt="Screenshot 2025-10-24 092910" src="https://github.com/user-attachments/assets/a20dde5a-4501-4f8d-a86c-d646ff08cdeb" />
 
 
-
+## RESULT:
+Thus the encryption and decryption is implemented and the output is obtained and verified successfully
